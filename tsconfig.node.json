@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "composite": true, // Enable project references and incremental compilation
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo", // Specify the location of the .tsbuildinfo file for incremental builds
+    "target": "ES2022", // Set the ECMAScript target version to ES2022
+    "lib": ["ES2022"], // Specify the library files to be included in the compilation
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "module": "ESNext", // Set the module system for the program
+    "moduleResolution": "bundler", // Specify how modules get resolved
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+    "strict": true, // Enable all strict type checking options
+    "noUncheckedIndexedAccess": true, // Enable checking for unsafe indexed access
+    "noEmit": true // Do not emit outputs
+  },
+  "include": ["vite.config.ts"] // Specify the files to include in compilation
+}

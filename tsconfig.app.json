@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    // Enable project references and incremental compilation
+    "composite": true,
+    // Specify the location of the .tsbuildinfo file for incremental builds
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    // Set the ECMAScript target version to ES2022
+    "target": "ES2022",
+    // Use 'define' semantics for class fields
+    "useDefineForClassFields": true,
+    // Specify the library files to be included in the compilation
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    // Set the module system for the program
+    "module": "ESNext",
+    // Skip type checking of declaration files
+    "skipLibCheck": true,
+
+    /* Bundler Mode */
+    // Specify how modules get resolved
+    "moduleResolution": "bundler",
+    // Allow imports of TypeScript files with .ts/.tsx extensions
+    "allowImportingTsExtensions": true,
+    // Allow importing .json files
+    "resolveJsonModule": true,
+    // Ensure that each file can be safely transpiled without relying on other imports
+    "isolatedModules": true,
+    // Force consistent casing in file names
+    "moduleDetection": "force",
+    // Do not emit outputs
+    "noEmit": true,
+    // Support JSX in .tsx files
+    "jsx": "react-jsx",
+
+    /* Code Checking */
+    // Enable all strict type checking options
+    "strict": true,
+    // Enable checking for unsafe indexed access
+    "noUncheckedIndexedAccess": true,
+    // Report errors on unused locals
+    "noUnusedLocals": true,
+    // Report errors on unused parameters
+    "noUnusedParameters": true,
+    // Report errors for fallthrough cases in switch statements
+    "noFallthroughCasesInSwitch": true,
+    // Enable interoperability between CommonJS and ES Modules
+    "esModuleInterop": true,
+    // Enable interoperability between CommonJS and ES Modules
+    "allowSyntheticDefaultImports": true,
+  },
+  // Specify the files to include in compilation
+  "include": ["./src/**/*"],
+  // Specify the files to exclude from compilation
+  "exclude": ["node_modules", "dist"]
+}
