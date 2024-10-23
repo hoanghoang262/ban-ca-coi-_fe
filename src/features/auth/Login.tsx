@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { useSetRecoilState } from 'recoil';
-import { userInfoState } from '../../shared/state/atom';
+import { accessTokenState, userInfoState } from '../../shared/state/atom';
 import { jwtDecode } from 'jwt-decode';
 
 const Login: React.FC = () => {
@@ -13,6 +13,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const setUserInfo = useSetRecoilState(userInfoState);
+  const setAccessToken = useSetRecoilState(accessTokenState);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +30,7 @@ const Login: React.FC = () => {
       );
       console.log('Login successful:', response.data);
       const token = response.data.token;
+      setAccessToken(token);
       localStorage.setItem('token', token);
 
       // Decode the JWT token

@@ -1,6 +1,5 @@
 import { atom, selector } from 'recoil';
 import { PricingPackage } from '../../features/admin/PriceManager';
-import { PostType } from '../../features/blog/Blog';
 
 interface UserInfo {
   id: number;
@@ -9,6 +8,11 @@ interface UserInfo {
   role: string;
   exp: number; 
 }
+
+export const accessTokenState = atom<string | null>({
+  key: 'accessTokenState',
+  default: null,
+});
 
 export const userInfoState = atom<UserInfo | null>({
   key: 'userInfoState',
@@ -36,7 +40,24 @@ export const pricingPackagesState = atom<PricingPackage[]>({
   default: [],
 });
 
-export const blogPostsState = atom<PostType[]>({
+export interface ContentItem {
+  contentId: number;
+  createdBy: number;
+  createByName: string;
+  title: string;
+  content: string;
+  contentType: string;
+  image: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export const blogPostsState = atom<ContentItem[]>({
   key: 'blogPostsState',
   default: [],
+});
+
+export const blogDataState = atom<ContentItem[]>({
+  key: 'blogDataState',
+  default: [], // Initialize with an empty array or fetch initial data
 });

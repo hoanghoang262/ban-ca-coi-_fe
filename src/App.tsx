@@ -18,17 +18,22 @@ import PriceManager from './features/admin/PriceManager';
 import AuthGuard from './shared/components/AuthGuard';
 import Home from './features/home/home';
 import Profile from './features/profile/Profile';
-import { userInfoState } from './shared/state/atom';
+import { accessTokenState, userInfoState } from './shared/state/atom';
 
 function App() {
   const setUserInfo = useSetRecoilState(userInfoState);
+  const setAccessToken = useSetRecoilState(accessTokenState);
 
   useEffect(() => {
+    const storedAccessToken = localStorage.getItem('accessToken');
     const storedUserInfo = localStorage.getItem('userInfo');
+    if (storedAccessToken) {
+      setAccessToken(storedAccessToken);
+    }
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     }
-  }, [setUserInfo]);
+  }, [setUserInfo, setAccessToken]);
 
   return (
     <Router>

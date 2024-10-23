@@ -85,6 +85,10 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
+  const handleNavItemClick = () => {
+    setIsDropdownOpen(false);
+  };
+
   return (
     <>
       <motion.nav
@@ -97,6 +101,7 @@ const Navbar: React.FC = () => {
           <Link
             to="/"
             className="text-3xl font-bold flex items-center space-x-2 hover:text-yellow-300 transition-colors duration-300"
+            onClick={handleNavItemClick}
           >
             <motion.div
               whileHover={{ rotate: 360, scale: 1.2 }}
@@ -120,6 +125,7 @@ const Navbar: React.FC = () => {
                   className={`flex items-center space-x-3 hover:${item.color} transition-colors duration-300`}
                   onMouseEnter={() => setIsHovered(item.to)}
                   onMouseLeave={() => setIsHovered('')}
+                  onClick={handleNavItemClick}
                 >
                   <item.icon className={`text-2xl ${item.color}`} />
                   <motion.span
@@ -161,17 +167,22 @@ const Navbar: React.FC = () => {
                       <Link
                         to="/settings"
                         className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={handleNavItemClick}
                       >
                         <FaCog className="mr-2" /> Settings
                       </Link>
                       <Link
                         to="/profile"
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                        onClick={handleNavItemClick}
                       >
                         <FaUser className="mr-2" /> Profile
                       </Link>
                       <button
-                        onClick={handleLogout}
+                        onClick={() => {
+                          handleLogout();
+                          handleNavItemClick();
+                        }}
                         className=" w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                       >
                         <FaSignOutAlt className="mr-2" /> Logout
@@ -189,6 +200,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/auth/login"
                     className="flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full hover:from-yellow-500 hover:to-orange-600 transition-colors duration-300 text-lg font-semibold"
+                    onClick={handleNavItemClick}
                   >
                     <FaSignInAlt className="text-xl" />
                     <span>Login</span>
@@ -201,6 +213,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/auth/register"
                     className="flex items-center space-x-2 bg-gradient-to-r from-green-400 to-blue-500 text-white px-6 py-3 rounded-full hover:from-green-500 hover:to-blue-600 transition-colors duration-300 text-lg font-semibold"
+                    onClick={handleNavItemClick}
                   >
                     <FaUserPlus className="text-xl" />
                     <span>Register</span>
