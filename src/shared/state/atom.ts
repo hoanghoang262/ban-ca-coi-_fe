@@ -59,5 +59,38 @@ export const blogPostsState = atom<ContentItem[]>({
 
 export const blogDataState = atom<ContentItem[]>({
   key: 'blogDataState',
-  default: [], // Initialize with an empty array or fetch initial data
+  default: [],
+});
+
+export interface OrderStatus {
+  name: string;
+  value: number;
+}
+
+export interface Order {
+  orderId: number;
+  customerId: number;
+  customerName: string | null;
+  pickupLocation: string;
+  destination: string;
+  weight: number;
+  quantity: number;
+  transportMethod: string;
+  total: number | null;
+  additionalServices: string;
+  pricingId: number;
+  pricingDetails: any | null;
+  status: string;
+  placedDate: string;
+  completedDate: string | null;
+}
+
+export const orderStatusesState = atom<OrderStatus[]>({
+  key: 'orderStatusesState',
+  default: [],
+});
+
+export const customerOrdersState = atom<Order[]>({
+  key: 'customerOrdersState',
+  default: [],
 });

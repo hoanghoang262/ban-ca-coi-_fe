@@ -54,7 +54,7 @@ const Navbar: React.FC = () => {
     },
   ];
 
-  if (userInfo?.role === 'Manager') {
+  if (userInfo?.role === 'Admin') {
     navItems.push({
       to: '/admin',
       icon: FaCog,

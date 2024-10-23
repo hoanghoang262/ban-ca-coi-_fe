@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { userInfoState } from '../../shared/state/atom';
+import { orderStatusesState, userInfoState } from '../../shared/state/atom';
 import { motion } from 'framer-motion';
 import { FaInfoCircle, FaArrowLeft } from 'react-icons/fa';
 import tutorialImage from '../../assets/koi-koi-about-us.webp';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CreateOrder: React.FC = () => {
+  const orderStatuses = useRecoilValue(orderStatusesState);
   const userInfo = useRecoilValue(userInfoState);
   const navigate = useNavigate();
   const [order, setOrder] = useState({
@@ -18,6 +20,14 @@ const CreateOrder: React.FC = () => {
     transportMethod: '',
     additionalServices: '',
   });
+  const [formData, setFormData] = useState({
+    pickupLocation: '',
+    destination: '',
+    weight: 0,
+    quantity: 0,
+    additionalServices: '',
+    status: '',
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -27,28 +37,42 @@ const CreateOrder: React.FC = () => {
       ...prevOrder,
       [name]: value,
     }));
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Perform form validation
     if (!order.pickupLocation || !order.destination || !order.transportMethod) {
       alert('Please fill in all required fields');
       return;
     }
-    // Display order details in console (for demonstration purposes)
-    console.log('Order created:', order);
-    alert('Order created successfully');
-    // Reset form fields
-    setOrder({
-      customerId: userInfo?.id || 0,
-      pickupLocation: '',
-      destination: '',
-      weight: 0,
-      quantity: 0,
-      transportMethod: '',
-      additionalServices: '',
-    });
+    try {
+      const response = await axios.post(
+        'http://157.66.27.65:8080/api/KoiOrder/create-order',
+        order
+      );
+      if (response.data.success) {
+        console.log('Order created:', response.data.data);
+        alert('Order created successfully');
+        // Reset form fields
+        setOrder({
+          customerId: userInfo?.id || 0,
+          pickupLocation: '',
+          destination: '',
+          weight: 0,
+          quantity: 0,
+          transportMethod: '',
+          additionalServices: '',
+        });
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Failed to create order. Please try again.');
+    }
   };
 
   return (
@@ -210,6 +234,20 @@ const CreateOrder: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
               />
+            </div>
+            <div>
+              <label htmlFor="status">Status:</label>
+              <select
+                id="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                {orderStatuses.map((status) => (
+                  <option key={status.value} value={status.name}>
+                    {status.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <motion.button
               type="submit"

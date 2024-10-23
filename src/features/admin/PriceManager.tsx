@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import axios from 'axios';
 import PriceTable from './components/PriceTable';
 import PriceModal from './components/PriceModal';
 import { useRecoilState } from 'recoil';
 import { pricingPackagesState } from '../../shared/state/atom';
+import Pagination from '../../shared/components/Pagination';
 
 export interface PricingPackage {
   priceId: number;
@@ -19,7 +19,7 @@ const PriceManager: React.FC = () => {
   const [pricingPackages, setPricingPackages] =
     useRecoilState(pricingPackagesState);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PricingPackage;
@@ -135,11 +135,11 @@ const PriceManager: React.FC = () => {
   );
 
   const pageCount = Math.ceil(filteredPackages.length / itemsPerPage);
-  const offset = currentPage * itemsPerPage;
+  const offset = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredPackages.slice(offset, offset + itemsPerPage);
 
-  const handlePageClick = (data: { selected: number }) => {
-    setCurrentPage(data.selected);
+  const handlePageClick = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
 
   const handleRowClick = (pkg: PricingPackage) => {
@@ -184,7 +184,7 @@ const PriceManager: React.FC = () => {
             viewBox="0 0 20 20"
           >
             <title>Close</title>
-            <path d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 10-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L10 11.414l2.934 2.934a1 1 0 001.414-1.414L11.414 10l2.934-2.934a1 1 0 000-1.414z" />
+            <path d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 10-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L11.414 10l2.934 2.934a1 1 0 000-1.414z" />
           </svg>
         </span>
       </div>
@@ -209,26 +209,23 @@ const PriceManager: React.FC = () => {
         handleDelete={handleDelete}
         handleRowClick={handleRowClick}
       />
-      <div className="pagination">
-        {Array.from({ length: pageCount }, (_, index) => (
-          <button
-            key={index}
-            onClick={() => handlePageClick({ selected: index })}
-            className={`px-3 py-1 border ${currentPage === index ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
-          >
-            {index + 1}
-          </button>
-        ))}
+      <div className="mt-6">
+        {' '}
+        {/* Add margin-top for spacing */}
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredPackages.length}
+          paginate={handlePageClick}
+          currentPage={currentPage}
+        />
       </div>
-      <motion.button
+      <button
         onClick={handleAdd}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
       >
         <FaPlus className="inline-block mr-2" />
         Add Package
-      </motion.button>
+      </button>
       <PriceModal
         showModal={showModal}
         selectedPackage={selectedPackage}
