@@ -19,6 +19,7 @@ import AuthGuard from './shared/components/AuthGuard';
 import Home from './features/home/home';
 import Profile from './features/profile/Profile';
 import { accessTokenState, userInfoState } from './shared/state/atom';
+import BlogManager from './features/admin/BlogManager';
 
 function App() {
   const setUserInfo = useSetRecoilState(userInfoState);
@@ -68,6 +69,7 @@ function App() {
         </Route>
         <Route path="/admin" element={<AdminTemplate />}>
           <Route path="pricing" element={<PriceManager />} />
+          <Route path="blog" element={<BlogManager />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

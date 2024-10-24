@@ -19,11 +19,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    path: '/admin',
-    icon: <FaChartPie className="mr-4 text-2xl" />,
-    label: 'Dashboard',
-  },
-  {
     path: '/admin/pricing',
     icon: <FaMoneyBill className="mr-4 text-2xl" />,
     label: 'Pricing',
@@ -34,19 +29,14 @@ const navItems: NavItem[] = [
     label: 'Orders',
   },
   {
-    path: '/admin/products',
-    icon: <FaBoxes className="mr-4 text-2xl" />,
-    label: 'Products',
-  },
-  {
     path: '/admin/customers',
     icon: <FaUsers className="mr-4 text-2xl" />,
     label: 'Customers',
   },
   {
-    path: '/admin/invoices',
+    path: '/admin/blog',
     icon: <FaFileInvoice className="mr-4 text-2xl" />,
-    label: 'Invoices',
+    label: 'Blog',
   },
   {
     path: '/admin/shipping',

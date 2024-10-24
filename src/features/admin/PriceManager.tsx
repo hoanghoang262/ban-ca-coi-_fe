@@ -32,6 +32,7 @@ const PriceManager: React.FC = () => {
   const [editPackage, setEditPackage] = useState<PricingPackage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [transportMethods, setTransportMethods] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -51,6 +52,21 @@ const PriceManager: React.FC = () => {
     fetchPrices();
   }, [setPricingPackages]);
 
+  useEffect(() => {
+    const fetchTransportMethods = async () => {
+      try {
+        const response = await axios.get<{ data: string[] }>(
+          'http://157.66.27.65:8080/api/Price/transport-methods'
+        );
+        setTransportMethods(response.data.data);
+      } catch (error) {
+        console.error('Error fetching transport methods:', error);
+      }
+    };
+
+    fetchTransportMethods();
+  }, []);
+
   const handleEdit = (packageId: number) => {
     const packageToEdit = pricingPackages.find(
       (pkg) => pkg.priceId === packageId
@@ -61,39 +77,12 @@ const PriceManager: React.FC = () => {
     }
   };
 
-  const handleDelete = async (packageId: number) => {
-    try {
-      await axios.delete(
-        `http://157.66.27.65:8080/api/Price/delete-price/${packageId}`
-      );
-      setPricingPackages((prevPackages) =>
-        prevPackages.filter((pkg) => pkg.priceId !== packageId)
-      );
-    } catch (error) {
-      console.error('Error deleting package:', error);
-    }
+  const handleDelete = (packageId: number) => {
+    alert('The Delete Package feature is not implemented yet.');
   };
 
-  const handleAdd = async () => {
-    try {
-      const newPackage: PricingPackage = {
-        priceId: 0,
-        transportMethod: 'Air',
-        weightRange: '0-1kg',
-        pricePerKg: 10,
-        additionalServicePrice: 5,
-      };
-      const response = await axios.post<{ data: PricingPackage }>(
-        'http://157.66.27.65:8080/api/Price/create-price',
-        newPackage
-      );
-      setPricingPackages((prevPackages) => [
-        ...prevPackages,
-        response.data.data,
-      ]);
-    } catch (error) {
-      console.error('Error adding package:', error);
-    }
+  const handleAdd = () => {
+    alert('The Add Package feature is not implemented yet.');
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,42 +90,46 @@ const PriceManager: React.FC = () => {
   };
 
   const handleSort = (key: keyof PricingPackage) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    if (
-      sortConfig &&
-      sortConfig.key === key &&
-      sortConfig.direction === 'ascending'
-    ) {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
+    setSortConfig((prevSortConfig) => {
+      let direction: 'ascending' | 'descending' = 'ascending';
+      if (
+        prevSortConfig &&
+        prevSortConfig.key === key &&
+        prevSortConfig.direction === 'ascending'
+      ) {
+        direction = 'descending';
+      }
+      return { key, direction };
+    });
   };
 
   const sortedPackages = useMemo(() => {
-    let sortablePackages = [...pricingPackages];
-    if (sortConfig !== null) {
-      sortablePackages.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortablePackages;
+    if (!sortConfig) return pricingPackages;
+
+    return [...pricingPackages].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
   }, [pricingPackages, sortConfig]);
 
-  const filteredPackages = sortedPackages.filter(
-    (pkg) =>
-      pkg.transportMethod.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pkg.weightRange.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPackages = useMemo(() => {
+    return sortedPackages.filter(
+      (pkg) =>
+        pkg.transportMethod.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.weightRange.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [sortedPackages, searchTerm]);
 
   const pageCount = Math.ceil(filteredPackages.length / itemsPerPage);
-  const offset = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredPackages.slice(offset, offset + itemsPerPage);
+  const currentItems = useMemo(() => {
+    const offset = (currentPage - 1) * itemsPerPage;
+    return filteredPackages.slice(offset, offset + itemsPerPage);
+  }, [filteredPackages, currentPage, itemsPerPage]);
 
   const handlePageClick = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -150,21 +143,34 @@ const PriceManager: React.FC = () => {
   const handleUpdate = async () => {
     if (editPackage) {
       try {
-        await axios.put(
+        const response = await axios.put(
           `http://157.66.27.65:8080/api/Price/update-price/${editPackage.priceId}`,
-          editPackage
+          {
+            transportMethod: editPackage.transportMethod,
+            weightRange: editPackage.weightRange,
+            pricePerKg: editPackage.pricePerKg,
+            additionalServicePrice: editPackage.additionalServicePrice,
+          }
         );
-        setPricingPackages((prevPackages) =>
-          prevPackages.map((pkg) =>
-            pkg.priceId === editPackage.priceId ? editPackage : pkg
-          )
-        );
-        setShowModal(false);
-        setEditPackage(null);
+        if (response.data.success) {
+          setPricingPackages((prevPackages) =>
+            prevPackages.map((pkg) =>
+              pkg.priceId === editPackage.priceId ? editPackage : pkg
+            )
+          );
+          setShowModal(false);
+          setEditPackage(null);
+        } else {
+          console.error('Error updating package:', response.data.message);
+        }
       } catch (error) {
         console.error('Error updating package:', error);
       }
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
   };
 
   if (loading) return <div>Loading...</div>;
@@ -191,7 +197,7 @@ const PriceManager: React.FC = () => {
     );
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
       <h2 className="text-2xl font-semibold mb-4">Pricing Packages</h2>
       <div className="mb-4 flex items-center">
         <FaSearch className="mr-2" />
@@ -202,30 +208,34 @@ const PriceManager: React.FC = () => {
           onChange={handleSearch}
           className="border p-2"
         />
+        {searchTerm && (
+          <button
+            onClick={handleClearSearch}
+            className="ml-2 text-gray-500 hover:text-gray-700"
+          >
+            Clear
+          </button>
+        )}
       </div>
+      <button
+        onClick={handleAdd}
+        className="absolute top-6 right-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+      >
+        <FaPlus className="inline-block mr-2" />
+        Add Package
+      </button>
       <PriceTable
         currentItems={currentItems}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         handleRowClick={handleRowClick}
       />
-      <div className="mt-6">
-        {' '}
-        {/* Add margin-top for spacing */}
-        <Pagination
-          itemsPerPage={itemsPerPage}
-          totalItems={filteredPackages.length}
-          paginate={handlePageClick}
-          currentPage={currentPage}
-        />
-      </div>
-      <button
-        onClick={handleAdd}
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
-      >
-        <FaPlus className="inline-block mr-2" />
-        Add Package
-      </button>
+      <Pagination
+        itemsPerPage={itemsPerPage}
+        totalItems={filteredPackages.length}
+        onPageChange={handlePageClick}
+        currentPage={currentPage}
+      />
       <PriceModal
         showModal={showModal}
         selectedPackage={selectedPackage}
@@ -233,6 +243,7 @@ const PriceManager: React.FC = () => {
         setEditPackage={setEditPackage}
         handleUpdate={handleUpdate}
         setShowModal={setShowModal}
+        transportMethods={transportMethods}
       />
     </div>
   );
