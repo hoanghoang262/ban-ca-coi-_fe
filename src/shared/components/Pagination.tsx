@@ -1,10 +1,17 @@
 import React, { useState, KeyboardEvent } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 
 interface PaginationProps {
   itemsPerPage: number;
   totalItems: number;
   currentPage: number;
   onPageChange: (pageNumber: number) => void;
+  totalPages: number; // Add totalPages prop
 }
 
 const Pagination: React.FC<PaginationProps> = ({
@@ -12,9 +19,9 @@ const Pagination: React.FC<PaginationProps> = ({
   totalItems,
   currentPage,
   onPageChange,
+  totalPages, // Use totalPages prop
 }) => {
   const [inputPage, setInputPage] = useState('');
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputPage(e.target.value);
@@ -41,41 +48,31 @@ const Pagination: React.FC<PaginationProps> = ({
         disabled={currentPage === 1}
         className="px-3 py-1 border rounded-md bg-white text-blue-500 hover:bg-blue-100 disabled:opacity-50"
       >
-        First
+        <ChevronsLeft className="h-5 w-5" />
       </button>
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="px-3 py-1 border rounded-md bg-white text-blue-500 hover:bg-blue-100 disabled:opacity-50"
       >
-        Previous
+        <ChevronLeft className="h-5 w-5" />
       </button>
-      {Array.from({ length: totalPages }, (_, index) => (
-        <button
-          key={index}
-          onClick={() => onPageChange(index + 1)}
-          className={`px-3 py-1 border rounded-md ${
-            currentPage === index + 1
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-500 hover:bg-blue-100'
-          }`}
-        >
-          {index + 1}
-        </button>
-      ))}
+      <span className="text-sm text-gray-600">
+        Page {currentPage} of {totalPages}
+      </span>
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="px-3 py-1 border rounded-md bg-white text-blue-500 hover:bg-blue-100 disabled:opacity-50"
       >
-        Next
+        <ChevronRight className="h-5 w-5" />
       </button>
       <button
         onClick={() => onPageChange(totalPages)}
         disabled={currentPage === totalPages}
         className="px-3 py-1 border rounded-md bg-white text-blue-500 hover:bg-blue-100 disabled:opacity-50"
       >
-        Last
+        <ChevronsRight className="h-5 w-5" />
       </button>
       <div className="flex items-center space-x-2">
         <input

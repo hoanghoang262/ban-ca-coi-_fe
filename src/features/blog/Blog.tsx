@@ -18,6 +18,8 @@ const Blog: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -42,6 +44,9 @@ const Blog: React.FC = () => {
       if (response.data.success) {
         console.log(response.data.data);
         setData(response.data.data);
+        // Update total pages based on response
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalRecords(response.data.pagination.totalRecords); // Store total records
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -100,7 +105,7 @@ const Blog: React.FC = () => {
         <Pagination
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          totalItems={data.length}
+          totalItems={totalRecords} // Use totalRecords for pagination
           itemsPerPage={itemsPerPage}
         />
 

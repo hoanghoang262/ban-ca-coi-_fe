@@ -233,6 +233,7 @@ const PriceManager: React.FC = () => {
       <Pagination
         itemsPerPage={itemsPerPage}
         totalItems={filteredPackages.length}
+        totalPages={pageCount}
         onPageChange={handlePageClick}
         currentPage={currentPage}
       />

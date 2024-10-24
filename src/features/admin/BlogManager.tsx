@@ -6,6 +6,8 @@ import SearchFilter from '../blog/SearchFilter';
 import ContentList from '../blog/ContentList';
 import Pagination from '../blog/Pagination';
 import ContentDetail from '../blog/ContentDetail';
+import { FaPlus } from 'react-icons/fa';
+import BlogUpdateAndCreate from './components/BlogCreate'; // Import the component
 
 const Blog: React.FC = () => {
   const [data, setData] = useRecoilState(blogDataState);
@@ -18,6 +20,9 @@ const Blog: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [isFormVisible, setIsFormVisible] = useState(false); // State to manage form visibility
 
   useEffect(() => {
     fetchData();
@@ -42,6 +47,9 @@ const Blog: React.FC = () => {
       if (response.data.success) {
         console.log(response.data.data);
         setData(response.data.data);
+        // Update total pages based on response
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalRecords(response.data.pagination.totalRecords); // Store total records
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -69,10 +77,30 @@ const Blog: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handleAdd = () => {
+    setIsFormVisible(true); // Show the form when "Add Content" is clicked
+  };
+
+  const handleCloseForm = () => {
+    setIsFormVisible(false);
+    fetchData(); // Refetch data when the form is closed
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Content List</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold mb-6 text-gray-800">
+            Content List
+          </h1>
+          <button
+            onClick={handleAdd}
+            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+          >
+            <FaPlus className="inline-block mr-2" />
+            Add Content
+          </button>
+        </div>
 
         <SearchFilter
           searchTerm={searchTerm}
@@ -100,7 +128,7 @@ const Blog: React.FC = () => {
         <Pagination
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          totalItems={data.length}
+          totalItems={totalRecords} // Use totalRecords for pagination
           itemsPerPage={itemsPerPage}
         />
 
@@ -109,6 +137,10 @@ const Blog: React.FC = () => {
           setSelectedItem={setSelectedItem}
           formatDate={formatDate}
         />
+
+        {isFormVisible && (
+          <BlogUpdateAndCreate onClose={handleCloseForm} /> // Pass the updated onClose
+        )}
       </div>
     </div>
   );

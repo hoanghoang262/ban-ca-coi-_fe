@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { orderStatusesState, userInfoState } from '../../shared/state/atom';
 import { motion } from 'framer-motion';
@@ -17,17 +17,29 @@ const CreateOrder: React.FC = () => {
     destination: '',
     weight: 0,
     quantity: 0,
+    total: 0,
     transportMethod: '',
+    pricingId: 1,
     additionalServices: '',
   });
-  const [formData, setFormData] = useState({
-    pickupLocation: '',
-    destination: '',
-    weight: 0,
-    quantity: 0,
-    additionalServices: '',
-    status: '',
-  });
+  const [pricingOptions, setPricingOptions] = useState<
+    { priceId: number; transportMethod: string; pricePerKg: number }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchPricingOptions = async () => {
+      try {
+        const response = await axios.get(
+          'http://157.66.27.65:8080/api/Price/get-prices'
+        );
+        setPricingOptions(response.data.data);
+      } catch (error) {
+        console.error('Error fetching pricing options:', error);
+      }
+    };
+
+    fetchPricingOptions();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -37,35 +49,38 @@ const CreateOrder: React.FC = () => {
       ...prevOrder,
       [name]: value,
     }));
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Perform form validation
     if (!order.pickupLocation || !order.destination || !order.transportMethod) {
       alert('Please fill in all required fields');
       return;
     }
     try {
+      const selectedPricing = pricingOptions.find(
+        (option) => option.priceId === parseInt(order.pricingId.toString())
+      );
+      const pricePerKg = selectedPricing?.pricePerKg || 0;
+      const total = pricePerKg * order.weight;
+      const updatedOrder = { ...order, total };
+
       const response = await axios.post(
         'http://157.66.27.65:8080/api/KoiOrder/create-order',
-        order
+        updatedOrder
       );
       if (response.data.success) {
         console.log('Order created:', response.data.data);
         alert('Order created successfully');
-        // Reset form fields
         setOrder({
           customerId: userInfo?.id || 0,
           pickupLocation: '',
           destination: '',
           weight: 0,
           quantity: 0,
+          total: 0,
           transportMethod: '',
+          pricingId: 1,
           additionalServices: '',
         });
       }
@@ -216,6 +231,30 @@ const CreateOrder: React.FC = () => {
               </motion.select>
             </div>
             <div>
+              <label htmlFor="pricingId" className="block mb-1 font-medium">
+                Pricing Method
+                <FaInfoCircle className="inline ml-2 text-blue-500" />
+              </label>
+              <motion.select
+                id="pricingId"
+                name="pricingId"
+                value={order.pricingId}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                <option value="">Select a pricing method</option>
+                {pricingOptions.map((option) => (
+                  <option key={option.priceId} value={option.priceId}>
+                    {option.transportMethod} - ${option.pricePerKg}/kg
+                  </option>
+                ))}
+              </motion.select>
+            </div>
+            <div>
               <label
                 htmlFor="additionalServices"
                 className="block mb-1 font-medium"
@@ -232,29 +271,15 @@ const CreateOrder: React.FC = () => {
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
               />
-            </div>
-            <div>
-              <label htmlFor="status">Status:</label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                {orderStatuses.map((status) => (
-                  <option key={status.value} value={status.name}>
-                    {status.name}
-                  </option>
-                ))}
-              </select>
             </div>
             <motion.button
               type="submit"
               className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white px-6 py-2 rounded-md hover:from-green-500 hover:via-blue-600 hover:to-purple-700 transition-colors w-full mt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
+              transition={{ duration: 0.5, delay: 1.0 }}
             >
               Create Order
             </motion.button>
