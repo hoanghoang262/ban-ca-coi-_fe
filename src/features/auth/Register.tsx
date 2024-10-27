@@ -54,6 +54,7 @@ const Register: React.FC = () => {
         id: decodedToken.id,
         name: decodedToken.unique_name,
         email: decodedToken.email,
+        role: decodedToken.role,
         exp: decodedToken.exp,
       });
 

@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="w-64 bg-gradient-to-b from-slate-800 to-slate-900 text-white p-6 shadow-lg min-h-screen"
     >
-      <Link to="/" className="flex items-center mb-8">
+      <Link to="/admin" className="flex items-center mb-8">
         <motion.div
           whileHover={{ rotate: 360, scale: 1.2 }}
           transition={{ duration: 0.5 }}

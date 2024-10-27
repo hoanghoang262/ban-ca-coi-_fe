@@ -2,6 +2,8 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Blog from './features/blog/Blog';
 import Login from './features/auth/Login';
@@ -30,14 +32,29 @@ function App() {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedAccessToken) {
       setAccessToken(storedAccessToken);
+      toast.success('Access token loaded successfully');
     }
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
+      toast.success('User info loaded successfully');
     }
   }, [setUserInfo, setAccessToken]);
 
+  toast.success('App loaded successfully');
+
   return (
     <Router>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Routes>
         <Route path="/" element={<CommonTemplate />}>
           <Route index element={<Home />} />

@@ -11,7 +11,8 @@ import {
   FaSignOutAlt,
   FaShoppingCart,
   FaNewspaper,
-  FaUser, // Import the shopping cart icon
+  FaUser,
+  FaFileAlt, // Import the shopping cart icon
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -51,6 +52,12 @@ const Navbar: React.FC = () => {
       icon: FaInfoCircle,
       text: 'About',
       color: 'text-purple-400',
+    },
+    {
+      to: '/order-documents',
+      icon: FaFileAlt,
+      text: 'Order Documents',
+      color: 'text-blue-400',
     },
   ];
 

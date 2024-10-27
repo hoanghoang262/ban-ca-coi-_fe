@@ -46,12 +46,17 @@ const Login: React.FC = () => {
       };
       setUserInfo(userInfo);
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
-
       toast.success('Login successful!');
       navigate('/');
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(`Login failed: ${error.response.data.message}`);
+      } else {
+        toast.error(
+          'Login failed. Please check your credentials and try again.'
+        );
+      }
       console.error('Login failed:', error);
-      toast.error('Login failed. Please check your credentials and try again.');
     }
   };
 

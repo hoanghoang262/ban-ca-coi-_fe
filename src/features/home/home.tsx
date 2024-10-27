@@ -94,43 +94,41 @@ const HomePage: React.FC = () => {
               Where you'll find the most beautiful and highest quality Koi fish
             </p>
             <a
-              href="#products"
+              href="#services"
               className="bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600 transition-colors inline-flex items-center"
             >
-              View Products <ChevronRight className="ml-2" />
+              Learn More <ChevronRight className="ml-2" />
             </a>
           </div>
         </section>
 
-        <section id="products" className="py-20 bg-white">
+        <section id="services" className="py-20 bg-white">
           <div className="container mx-auto px-4">
             <h3 className="text-3xl font-semibold mb-10 text-center">
-              Featured Products
+              Our Fish Transportation Services
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h4 className="text-xl font-semibold mb-2">
-                      {product.name}
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      {product.price.toLocaleString('en-US')} VND
-                    </p>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors w-full flex items-center justify-center">
-                      <ShoppingCart className="mr-2" size={20} /> Add to Cart
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 p-6">
+                <h4 className="text-xl font-semibold mb-2">Air Transport</h4>
+                <p className="text-gray-600 mb-4">
+                  Fast and reliable air transport for your Koi fish, ensuring
+                  they arrive safely and quickly.
+                </p>
+              </div>
+              <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 p-6">
+                <h4 className="text-xl font-semibold mb-2">Sea Transport</h4>
+                <p className="text-gray-600 mb-4">
+                  Cost-effective sea transport options for large shipments, with
+                  full care and safety measures.
+                </p>
+              </div>
+              <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105 p-6">
+                <h4 className="text-xl font-semibold mb-2">Land Transport</h4>
+                <p className="text-gray-600 mb-4">
+                  Secure land transport services for short distances, ensuring
+                  your fish are handled with care.
+                </p>
+              </div>
             </div>
           </div>
         </section>
