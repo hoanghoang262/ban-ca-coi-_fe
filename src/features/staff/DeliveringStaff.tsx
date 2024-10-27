@@ -24,18 +24,11 @@ const DeliveringStaff: React.FC = () => {
     totalRecords: 0,
     totalPages: 0,
   });
-  const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [filterStatus, setFilterStatus] = useState<string>('Pending');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const statusOptions = [
-    'All',
-    'Pending',
-    'HealthCheck',
-    'Packed',
-    'InTransit',
-    'Delivered',
-  ];
+  const statusOptions = ['Pending', 'Packed', 'InTransit', 'Delivered'];
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -44,7 +37,7 @@ const DeliveringStaff: React.FC = () => {
         `http://157.66.27.65:8080/api/KoiOrder/getKoiOrderAndFilter`,
         {
           params: {
-            status: filterStatus === 'All' ? undefined : filterStatus,
+            status: filterStatus,
             sortBy: 'PlacedDate',
             isDescending: true,
             pageNumber: currentPage,

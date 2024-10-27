@@ -28,17 +28,11 @@ const SalesStaff: React.FC = () => {
     totalPages: 0,
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [filterStatus, setFilterStatus] = useState<string>('HealthCheck');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const statusOptions = [
-    'All',
-    'HealthCheck',
-    'HealthChecked',
-    'Packing',
-    'Packed',
-  ];
+  const statusOptions = ['HealthCheck', 'HealthChecked', 'Packing', 'Packed'];
 
   useEffect(() => {
     fetchOrders();
@@ -51,7 +45,7 @@ const SalesStaff: React.FC = () => {
         `http://157.66.27.65:8080/api/KoiOrder/getKoiOrderAndFilter`,
         {
           params: {
-            status: filterStatus === 'All' ? undefined : filterStatus,
+            status: filterStatus,
             sortBy: 'PlacedDate',
             isDescending: true,
             pageNumber: pagination.pageNumber,
