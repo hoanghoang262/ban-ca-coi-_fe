@@ -22,6 +22,8 @@ import Home from './features/home/home';
 import Profile from './features/profile/Profile';
 import { accessTokenState, userInfoState } from './shared/state/atom';
 import BlogManager from './features/admin/BlogManager';
+import SalesStaff from './features/staff/SalesStaff';
+import DeliveringStaff from './features/staff/DeliveringStaff';
 
 function App() {
   const setUserInfo = useSetRecoilState(userInfoState);
@@ -79,6 +81,8 @@ function App() {
           <Route path="order/history" element={<OrderHistory />} />
           <Route path="blog" element={<Blog />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="/staff/sales" element={<SalesStaff />} />
+          <Route path="/staff/delivering" element={<DeliveringStaff />} />
         </Route>
         <Route path="/auth">
           <Route path="login" element={<Login />} />

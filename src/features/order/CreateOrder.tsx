@@ -45,10 +45,27 @@ const CreateOrder: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      [name]: value,
-    }));
+    setOrder((prevOrder) => {
+      const updatedOrder = {
+        ...prevOrder,
+        [name]: value,
+      };
+
+      // Recalculate total when weight, quantity, or pricingId changes
+      if (name === 'weight' || name === 'quantity' || name === 'pricingId') {
+        const selectedPricing = pricingOptions.find(
+          (option) =>
+            option.priceId === parseInt(updatedOrder.pricingId.toString())
+        );
+        const pricePerKg = selectedPricing?.pricePerKg || 0;
+        updatedOrder.total =
+          pricePerKg *
+          parseFloat(updatedOrder.weight.toString()) *
+          parseFloat(updatedOrder.quantity.toString());
+      }
+
+      return updatedOrder;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,16 +75,9 @@ const CreateOrder: React.FC = () => {
       return;
     }
     try {
-      const selectedPricing = pricingOptions.find(
-        (option) => option.priceId === parseInt(order.pricingId.toString())
-      );
-      const pricePerKg = selectedPricing?.pricePerKg || 0;
-      const total = pricePerKg * order.weight;
-      const updatedOrder = { ...order, total };
-
       const response = await axios.post(
         'http://157.66.27.65:8080/api/KoiOrder/create-order',
-        updatedOrder
+        order
       );
       if (response.data.success) {
         console.log('Order created:', response.data.data);
@@ -131,136 +141,154 @@ const CreateOrder: React.FC = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="pickupLocation"
-                className="block mb-1 font-medium"
-              >
-                Pickup Location
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.input
-                type="text"
-                id="pickupLocation"
-                name="pickupLocation"
-                value={order.pickupLocation}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="pickupLocation"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Pickup Location
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.input
+                  type="text"
+                  id="pickupLocation"
+                  name="pickupLocation"
+                  value={order.pickupLocation}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="destination"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Destination
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.input
+                  type="text"
+                  id="destination"
+                  name="destination"
+                  value={order.destination}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="destination" className="block mb-1 font-medium">
-                Destination
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.input
-                type="text"
-                id="destination"
-                name="destination"
-                value={order.destination}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="weight"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Weight (kg)
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.input
+                  type="number"
+                  id="weight"
+                  name="weight"
+                  value={order.weight}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="quantity"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Quantity
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.input
+                  type="number"
+                  id="quantity"
+                  name="quantity"
+                  value={order.quantity}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="weight" className="block mb-1 font-medium">
-                Weight (kg)
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.input
-                type="number"
-                id="weight"
-                name="weight"
-                value={order.weight}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              />
-            </div>
-            <div>
-              <label htmlFor="quantity" className="block mb-1 font-medium">
-                Quantity
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={order.quantity}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="transportMethod"
-                className="block mb-1 font-medium"
-              >
-                Transport Method
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.select
-                id="transportMethod"
-                name="transportMethod"
-                value={order.transportMethod}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-              >
-                <option value="">Select a transport method</option>
-                <option value="Air">Air</option>
-                <option value="Sea">Sea</option>
-                <option value="Land">Land</option>
-              </motion.select>
-            </div>
-            <div>
-              <label htmlFor="pricingId" className="block mb-1 font-medium">
-                Pricing Method
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
-              </label>
-              <motion.select
-                id="pricingId"
-                name="pricingId"
-                value={order.pricingId}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-              >
-                <option value="">Select a pricing method</option>
-                {pricingOptions.map((option) => (
-                  <option key={option.priceId} value={option.priceId}>
-                    {option.transportMethod} - ${option.pricePerKg}/kg
-                  </option>
-                ))}
-              </motion.select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="transportMethod"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Transport Method
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.select
+                  id="transportMethod"
+                  name="transportMethod"
+                  value={order.transportMethod}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.7 }}
+                >
+                  <option value="">Select a transport method</option>
+                  <option value="Air">Air</option>
+                  <option value="Sea">Sea</option>
+                  <option value="Land">Land</option>
+                </motion.select>
+              </div>
+              <div>
+                <label
+                  htmlFor="pricingId"
+                  className="block mb-1 text-sm font-medium"
+                >
+                  Pricing Method
+                  <FaInfoCircle className="inline ml-1 text-blue-500" />
+                </label>
+                <motion.select
+                  id="pricingId"
+                  name="pricingId"
+                  value={order.pricingId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
+                >
+                  <option value="">Select a pricing method</option>
+                  {pricingOptions.map((option) => (
+                    <option key={option.priceId} value={option.priceId}>
+                      {option.transportMethod} - ${option.pricePerKg}/kg
+                    </option>
+                  ))}
+                </motion.select>
+              </div>
             </div>
             <div>
               <label
                 htmlFor="additionalServices"
-                className="block mb-1 font-medium"
+                className="block mb-1 text-sm font-medium"
               >
                 Additional Services
-                <FaInfoCircle className="inline ml-2 text-blue-500" />
+                <FaInfoCircle className="inline ml-1 text-blue-500" />
               </label>
               <motion.input
                 type="text"
@@ -268,18 +296,32 @@ const CreateOrder: React.FC = () => {
                 name="additionalServices"
                 value={order.additionalServices}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.9 }}
               />
             </div>
+            <div className="mt-4">
+              <label className="block mb-1 text-sm font-medium">
+                Total Price
+                <FaInfoCircle className="inline ml-1 text-blue-500" />
+              </label>
+              <motion.div
+                className="w-full px-3 py-2 text-sm border rounded-md bg-gray-100 font-semibold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 1.0 }}
+              >
+                ${(order.total * order.quantity).toFixed(2)}
+              </motion.div>
+            </div>
             <motion.button
               type="submit"
-              className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white px-6 py-2 rounded-md hover:from-green-500 hover:via-blue-600 hover:to-purple-700 transition-colors w-full mt-6"
+              className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white px-6 py-2 rounded-md hover:from-green-500 hover:via-blue-600 hover:to-purple-700 transition-colors w-full mt-4 text-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
+              transition={{ duration: 0.5, delay: 1.1 }}
             >
               Create Order
             </motion.button>
