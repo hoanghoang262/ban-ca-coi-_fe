@@ -54,21 +54,9 @@ const Navbar: React.FC = () => {
       text: 'About',
       color: 'text-purple-400',
     },
-    {
-      to: '/staff/sales',
-      icon: FaUser,
-      text: 'Sales',
-      color: 'text-blue-400',
-    },
-    {
-      to: '/staff/delivering',
-      icon: FaTruck,
-      text: 'Delivering',
-      color: 'text-green-400',
-    },
   ];
 
-  if (userInfo?.role === 'Admin') {
+  if (userInfo?.role === 'Manager') {
     navItems.push({
       to: '/admin',
       icon: FaCog,

@@ -14,6 +14,7 @@ import {
   FaBoxOpen,
   FaFilter,
   FaExclamationCircle,
+  FaCertificate,
 } from 'react-icons/fa';
 import Pagination from '../../shared/components/Pagination';
 import { Order } from '../../shared/state/atom';
@@ -31,6 +32,14 @@ const SalesStaff: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('HealthCheck');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCertificatePopup, setShowCertificatePopup] = useState(false);
+  const [certificateInfo, setCertificateInfo] = useState({
+    orderId: 0,
+    documentType: '',
+    documentPath: '',
+    image: '',
+  });
+  const [certificates, setCertificates] = useState<{ [key: number]: any }>({});
 
   const statusOptions = ['HealthCheck', 'HealthChecked', 'Packing', 'Packed'];
 
@@ -57,6 +66,9 @@ const SalesStaff: React.FC = () => {
         setOrders(response.data.data);
         setPagination(response.data.pagination);
         setError(null);
+        response.data.data.forEach((order: Order) => {
+          fetchCertificate(order.orderId);
+        });
       } else {
         setError('No orders found');
         setOrders([]);
@@ -83,10 +95,41 @@ const SalesStaff: React.FC = () => {
     }
   };
 
+  const fetchCertificate = async (orderId: number) => {
+    try {
+      const response = await axios.get(
+        `http://157.66.27.65:8080/api/OrderDocuments/order/${orderId}`
+      );
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.length > 0
+      ) {
+        setCertificates((prev) => ({
+          ...prev,
+          [orderId]: response.data.data[0],
+        }));
+      } else {
+        setCertificates((prev) => ({ ...prev, [orderId]: null }));
+      }
+    } catch (error) {
+      console.error('Error fetching certificate:', error);
+      setCertificates((prev) => ({ ...prev, [orderId]: null }));
+    }
+  };
+
   const handleStatusUpdate = async (orderId: number, currentStatus: string) => {
     let newStatus = '';
     switch (currentStatus) {
       case 'HealthCheck':
+        if (!certificates[orderId]) {
+          setCertificateInfo((prev) => ({
+            ...prev,
+            orderId: orderId,
+          }));
+          setShowCertificatePopup(true);
+          return;
+        }
         newStatus = 'HealthChecked';
         break;
       case 'HealthChecked':
@@ -120,8 +163,33 @@ const SalesStaff: React.FC = () => {
     }
   };
 
+  const handleCertificateSubmit = async () => {
+    try {
+      const response = await axios.post(
+        `http://157.66.27.65:8080/api/OrderDocuments`,
+        certificateInfo,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success('Certificate added successfully');
+        setShowCertificatePopup(false);
+        fetchOrders(); // Refresh orders after successful certificate submission
+      } else {
+        toast.error('Failed to add certificate');
+      }
+    } catch (error) {
+      console.error('Error adding certificate:', error);
+      toast.error('Error adding certificate');
+    }
+  };
+
   const openDetailPopup = (order: Order) => {
     setSelectedOrder(order);
+    fetchCertificate(order.orderId);
   };
 
   const closeDetailPopup = () => {
@@ -186,8 +254,11 @@ const SalesStaff: React.FC = () => {
             <motion.div
               key={order.orderId}
               whileHover={{ scale: 1.03 }}
-              className="p-6 border rounded-lg shadow-lg bg-white"
+              className="p-6 border rounded-lg shadow-lg bg-white relative"
             >
+              {certificates[order.orderId] && (
+                <FaCertificate className="absolute top-2 right-2 text-green-500" />
+              )}
               <h2 className="text-xl font-semibold mb-3 text-gray-800">
                 Order #{order.orderId}
               </h2>
@@ -213,17 +284,38 @@ const SalesStaff: React.FC = () => {
               </div>
               <div className="flex justify-between items-center mt-4">
                 {order.status !== 'Packed' && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() =>
-                      handleStatusUpdate(order.orderId, order.status)
-                    }
-                    className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center transition-colors duration-300 hover:bg-blue-600"
-                  >
-                    <FaArrowRight className="mr-2" />
-                    Next Status
-                  </motion.button>
+                  <>
+                    {order.status === 'HealthCheck' &&
+                    !certificates[order.orderId] ? (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+                          handleStatusUpdate(order.orderId, order.status)
+                        }
+                        className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center transition-colors duration-300 hover:bg-blue-600"
+                      >
+                        <FaCheckCircle className="mr-2" />
+                        Submit Certificate
+                      </motion.button>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+                          handleStatusUpdate(order.orderId, order.status)
+                        }
+                        className={`${
+                          certificates[order.orderId]
+                            ? 'bg-green-500'
+                            : 'bg-blue-500'
+                        } text-white px-4 py-2 rounded-full flex items-center transition-colors duration-300 hover:bg-blue-600`}
+                      >
+                        <FaArrowRight className="mr-2" />
+                        Next Status
+                      </motion.button>
+                    )}
+                  </>
                 )}
                 <div className="flex space-x-2">
                   <motion.button
@@ -323,6 +415,35 @@ const SalesStaff: React.FC = () => {
                   </li>
                 </ul>
               </div>
+              {certificates[selectedOrder.orderId] ? (
+                <div className="mt-4">
+                  <p className="font-semibold flex items-center">
+                    <FaCheckCircle className="mr-2 text-gray-500" />{' '}
+                    Certificate:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2">
+                    <li>
+                      Document Type:{' '}
+                      {certificates[selectedOrder.orderId].documentType}
+                    </li>
+                    <li>
+                      Document Path:{' '}
+                      {certificates[selectedOrder.orderId].documentPath}
+                    </li>
+                    <li>
+                      <img
+                        src={`data:image/png;base64,${certificates[selectedOrder.orderId].image}`}
+                        alt="Certificate"
+                        className="mt-2"
+                      />
+                    </li>
+                  </ul>
+                </div>
+              ) : (
+                <p className="mt-4 text-red-500">
+                  No certificate found for this order.
+                </p>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -331,6 +452,96 @@ const SalesStaff: React.FC = () => {
               >
                 Close
               </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCertificatePopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowCertificatePopup(false)}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full m-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <FaCheckCircle className="mr-2 text-blue-500" />
+                Add Certificate
+              </h2>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Document Type
+                </label>
+                <input
+                  type="text"
+                  value={certificateInfo.documentType}
+                  onChange={(e) =>
+                    setCertificateInfo((prev) => ({
+                      ...prev,
+                      documentType: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Document Path
+                </label>
+                <input
+                  type="text"
+                  value={certificateInfo.documentPath}
+                  onChange={(e) =>
+                    setCertificateInfo((prev) => ({
+                      ...prev,
+                      documentPath: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Image (Base64)
+                </label>
+                <textarea
+                  value={certificateInfo.image}
+                  onChange={(e) =>
+                    setCertificateInfo((prev) => ({
+                      ...prev,
+                      image: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowCertificatePopup(false)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-full transition-colors duration-300 hover:bg-gray-600"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleCertificateSubmit}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-full transition-colors duration-300 hover:bg-blue-600"
+                >
+                  Submit
+                </motion.button>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -6,7 +6,14 @@ import {
   userInfoState,
 } from '../../shared/state/atom';
 import { motion } from 'framer-motion';
-import { FaCheckCircle, FaTimesCircle, FaSpinner } from 'react-icons/fa';
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaSpinner,
+  FaFilter,
+  FaSortAmountDown,
+  FaSortAmountUp,
+} from 'react-icons/fa';
 import axios from 'axios';
 
 const OrderHistory: React.FC = () => {
@@ -17,16 +24,34 @@ const OrderHistory: React.FC = () => {
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [pagination, setPagination] = useState({
+    pageNumber: 1,
+    pageSize: 10,
+    totalRecords: 0,
+    totalPages: 0,
+  });
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(
-          `http://157.66.27.65:8080/api/KoiOrder/customer-orders?customerId=${userInfo?.id}`
+          `http://157.66.27.65:8080/api/KoiOrder/customer-orders`,
+          {
+            params: {
+              customerId: userInfo?.id,
+              pageNumber: pagination.pageNumber,
+              pageSize: pagination.pageSize,
+            },
+          }
         );
         if (response.data.success) {
           console.log('customer orders', response.data.data);
           setOrders(response.data.data);
+          setPagination(response.data.pagination);
+        } else {
+          console.error('No orders found for the customer.');
         }
       } catch (error) {
         console.error('Error fetching customer orders:', error);
@@ -40,15 +65,41 @@ const OrderHistory: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [userInfo, setOrders]);
+  }, [userInfo, setOrders, pagination.pageNumber, pagination.pageSize]);
 
-  const handleCancelOrder = (order: Order) => {
-    setSelectedOrder(order);
+  const handleCancelOrder = async (order: Order) => {
+    try {
+      const response = await axios.post(
+        `http://157.66.27.65:8080/api/KoiOrder/cancel-order/${order.orderId}`
+      );
+      if (response.data.success) {
+        setOrders((prevOrders) =>
+          prevOrders.map((o) =>
+            o.orderId === order.orderId ? { ...o, status: 'Canceled' } : o
+          )
+        );
+        setSelectedOrder(null);
+      } else {
+        console.error('Failed to cancel order');
+      }
+    } catch (error) {
+      console.error('Error canceling order:', error);
+    }
   };
 
-  const filteredOrders = orders.filter((order) =>
-    order.orderId.toString().includes(searchTerm)
-  );
+  const filteredOrders = orders
+    .filter(
+      (order) =>
+        order.orderId.toString().includes(searchTerm) &&
+        (filterStatus ? order.status === filterStatus : true)
+    )
+    .sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.orderId - b.orderId;
+      } else {
+        return b.orderId - a.orderId;
+      }
+    });
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-96px)]">
@@ -65,6 +116,36 @@ const OrderHistory: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border border-gray-300 rounded px-4 py-2 w-full"
             />
+          </div>
+          <div className="mb-4 flex items-center">
+            <FaFilter className="mr-2 text-gray-500" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2"
+            >
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="HealthCheck">HealthCheck</option>
+              <option value="HealthChecked">HealthChecked</option>
+              <option value="Packing">Packing</option>
+              <option value="Packed">Packed</option>
+              <option value="InTransit">InTransit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Success">Success</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              className="ml-4 px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors"
+            >
+              {sortOrder === 'asc' ? (
+                <FaSortAmountDown className="inline-block mr-1" />
+              ) : (
+                <FaSortAmountUp className="inline-block mr-1" />
+              )}
+              Sort by Order ID
+            </button>
           </div>
           <div className="mb-4">
             <button
@@ -87,6 +168,27 @@ const OrderHistory: React.FC = () => {
             >
               List
             </button>
+          </div>
+          <div className="mb-4 flex items-center">
+            <label htmlFor="pageSize" className="mr-2 text-gray-500">
+              Page Size:
+            </label>
+            <select
+              id="pageSize"
+              value={pagination.pageSize}
+              onChange={(e) =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageSize: parseInt(e.target.value, 10),
+                }))
+              }
+              className="border border-gray-300 rounded px-4 py-2"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
           </div>
           {filteredOrders.length === 0 ? (
             <div className="text-center text-gray-500">
@@ -176,6 +278,38 @@ const OrderHistory: React.FC = () => {
               ))}
             </div>
           )}
+          <div className="mt-4 flex justify-center items-center">
+            <button
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageNumber: Math.max(prev.pageNumber - 1, 1),
+                }))
+              }
+              className="px-4 py-2 mx-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors"
+              disabled={pagination.pageNumber === 1}
+            >
+              Previous
+            </button>
+            <span className="mx-2">
+              Page {pagination.pageNumber} of {pagination.totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageNumber: Math.min(
+                    prev.pageNumber + 1,
+                    pagination.totalPages
+                  ),
+                }))
+              }
+              className="px-4 py-2 mx-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors"
+              disabled={pagination.pageNumber === pagination.totalPages}
+            >
+              Next
+            </button>
+          </div>
         </>
       )}
     </div>

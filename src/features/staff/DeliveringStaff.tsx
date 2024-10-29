@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Pagination from '../../shared/components/Pagination';
 import { Order } from '../../shared/state/atom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaArrowRight,
   FaCheckCircle,
@@ -27,6 +27,7 @@ const DeliveringStaff: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('Pending');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const statusOptions = ['Pending', 'Packed', 'InTransit', 'Delivered'];
 
@@ -120,7 +121,11 @@ const DeliveringStaff: React.FC = () => {
   };
 
   const openDetailPopup = (order: Order) => {
-    console.log('Opening detail popup for order:', order);
+    setSelectedOrder(order);
+  };
+
+  const closeDetailPopup = () => {
+    setSelectedOrder(null);
   };
 
   return (
@@ -251,6 +256,96 @@ const DeliveringStaff: React.FC = () => {
           itemsPerPage={pagination.pageSize}
         />
       </div>
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={closeDetailPopup}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full m-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <FaInfoCircle className="mr-2 text-blue-500" />
+                Order Details
+              </h2>
+              <div className="space-y-2">
+                <p>
+                  <span className="font-medium text-gray-600">Order ID:</span>{' '}
+                  {selectedOrder.orderId}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Status:</span>{' '}
+                  {selectedOrder.status}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Customer:</span>{' '}
+                  {selectedOrder.customerName}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">
+                    Pickup Location:
+                  </span>{' '}
+                  {selectedOrder.pickupLocation}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">
+                    Destination:
+                  </span>{' '}
+                  {selectedOrder.destination}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Weight:</span>{' '}
+                  {selectedOrder.weight} kg
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Quantity:</span>{' '}
+                  {selectedOrder.quantity}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">
+                    Transport Method:
+                  </span>{' '}
+                  {selectedOrder.transportMethod}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Total:</span> $
+                  {selectedOrder.total?.toFixed(2)}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">
+                    Placed Date:
+                  </span>{' '}
+                  {new Date(selectedOrder.placedDate).toLocaleDateString()}
+                </p>
+                {selectedOrder.completedDate && (
+                  <p>
+                    <span className="font-medium text-gray-600">
+                      Completed Date:
+                    </span>{' '}
+                    {new Date(selectedOrder.completedDate).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={closeDetailPopup}
+                className="mt-6 bg-blue-500 text-white px-4 py-2 rounded-full transition-colors duration-300 hover:bg-blue-600"
+              >
+                Close
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
