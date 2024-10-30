@@ -27,7 +27,7 @@ export default function UserProfile() {
 
       try {
         const response = await axios.get(
-          `http://157.66.27.65:8080/api/Account/profile/${userInfoFromState.id}`,
+          `${import.meta.env.VITE_API_URL}/Account/profile/${userInfoFromState.id}`,
           {
             headers: {
               accept: '*/*',
@@ -58,7 +58,7 @@ export default function UserProfile() {
     if (isEditing && userInfoFromState) {
       try {
         await axios.post(
-          `http://157.66.27.65:8080/api/Account/update-profile/${userInfoFromState.id}`,
+          `${import.meta.env.VITE_API_URL}/Account/update-profile/${userInfoFromState.id}`,
           {
             name: userInfo.name,
             phone: userInfo.phone,

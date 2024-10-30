@@ -51,7 +51,7 @@ const SalesStaff: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://157.66.27.65:8080/api/KoiOrder/getKoiOrderAndFilter`,
+        `${import.meta.env.VITE_API_URL}/KoiOrder/getKoiOrderAndFilter`,
         {
           params: {
             status: filterStatus,
@@ -98,7 +98,7 @@ const SalesStaff: React.FC = () => {
   const fetchCertificate = async (orderId: number) => {
     try {
       const response = await axios.get(
-        `http://157.66.27.65:8080/api/OrderDocuments/order/${orderId}`
+        `${import.meta.env.VITE_API_URL}/OrderDocuments/order/${orderId}`
       );
       if (
         response.data &&
@@ -145,7 +145,7 @@ const SalesStaff: React.FC = () => {
 
     try {
       const response = await axios.put(
-        `http://157.66.27.65:8080/api/KoiOrder/update-order-status/${orderId}`,
+        `${import.meta.env.VITE_API_URL}/KoiOrder/update-order-status/${orderId}`,
         null,
         {
           params: { status: newStatus },
@@ -166,7 +166,7 @@ const SalesStaff: React.FC = () => {
   const handleCertificateSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://157.66.27.65:8080/api/OrderDocuments`,
+        `${import.meta.env.VITE_API_URL}/OrderDocuments`,
         certificateInfo,
         {
           headers: {

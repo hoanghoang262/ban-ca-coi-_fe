@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
     });
   }
 
-  if (userInfo?.role === 'Sales Staff') {
+  if (userInfo?.role === 'SalesStaff') {
     navItems.push({
       to: '/staff/sales',
       icon: FaUser,
@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
     });
   }
 
-  if (userInfo?.role === 'Delivering Staff') {
+  if (userInfo?.role === 'DeliveringStaff') {
     navItems.push({
       to: '/staff/delivering',
       icon: FaTruck,

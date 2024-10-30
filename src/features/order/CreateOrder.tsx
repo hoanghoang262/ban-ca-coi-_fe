@@ -32,7 +32,7 @@ const CreateOrder: React.FC = () => {
     const fetchPricingOptions = async () => {
       try {
         const response = await axios.get(
-          'http://157.66.27.65:8080/api/Price/get-prices'
+          `${import.meta.env.VITE_API_URL}/Price/get-prices`
         );
         setPricingOptions(response.data.data);
       } catch (error) {
@@ -79,7 +79,7 @@ const CreateOrder: React.FC = () => {
     }
     try {
       const response = await axios.post(
-        'http://157.66.27.65:8080/api/KoiOrder/create-order',
+        `${import.meta.env.VITE_API_URL}/KoiOrder/create-order`,
         order
       );
       if (response.data.success) {
@@ -88,7 +88,7 @@ const CreateOrder: React.FC = () => {
         const newOrder = response.data.data;
         if (newOrder.status === 'WaitingForPayment') {
           const paymentResponse = await axios.post(
-            `http://157.66.27.65:8080/api/VNPay/Payment`,
+            `${import.meta.env.VITE_API_URL}/VNPay/Payment`,
             null,
             { params: { orderId: newOrder.orderId } }
           );

@@ -41,7 +41,7 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
     setError(null);
     try {
       const response = await axios.put(
-        `http://157.66.27.65:8080/api/CMSContent/update-content/${formData.contentId}`,
+        `${import.meta.env.VITE_API_URL}/CMSContent/update-content/${formData.contentId}`,
         {
           title: formData.title,
           content: formData.content,

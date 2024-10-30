@@ -38,7 +38,7 @@ const PriceManager: React.FC = () => {
     const fetchPrices = async () => {
       try {
         const response = await axios.get<{ data: PricingPackage[] }>(
-          'http://157.66.27.65:8080/api/Price/get-prices'
+          `${import.meta.env.VITE_API_URL}/Price/get-prices`
         );
         setPricingPackages(response.data.data);
       } catch (error) {
@@ -56,7 +56,7 @@ const PriceManager: React.FC = () => {
     const fetchTransportMethods = async () => {
       try {
         const response = await axios.get<{ data: string[] }>(
-          'http://157.66.27.65:8080/api/Price/transport-methods'
+          `${import.meta.env.VITE_API_URL}/Price/transport-methods`
         );
         setTransportMethods(response.data.data);
       } catch (error) {
@@ -144,7 +144,7 @@ const PriceManager: React.FC = () => {
     if (editPackage) {
       try {
         const response = await axios.put(
-          `http://157.66.27.65:8080/api/Price/update-price/${editPackage.priceId}`,
+          `${import.meta.env.VITE_API_URL}/Price/update-price/${editPackage.priceId}`,
           {
             transportMethod: editPackage.transportMethod,
             weightRange: editPackage.weightRange,

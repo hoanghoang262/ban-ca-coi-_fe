@@ -35,7 +35,7 @@ const DeliveringStaff: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://157.66.27.65:8080/api/KoiOrder/getKoiOrderAndFilter`,
+        `${import.meta.env.VITE_API_URL}/KoiOrder/getKoiOrderAndFilter`,
         {
           params: {
             status: filterStatus,
@@ -102,7 +102,7 @@ const DeliveringStaff: React.FC = () => {
 
     try {
       const response = await axios.put(
-        `http://157.66.27.65:8080/api/KoiOrder/update-order-status/${orderId}`,
+        `${import.meta.env.VITE_API_URL}/KoiOrder/update-order-status/${orderId}`,
         null,
         {
           params: { status: newStatus },

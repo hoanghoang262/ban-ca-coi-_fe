@@ -40,7 +40,7 @@ const OrderHistory: React.FC = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(
-          `http://157.66.27.65:8080/api/KoiOrder/customer-orders`,
+          `${import.meta.env.VITE_API_URL}/KoiOrder/customer-orders`,
           {
             params: {
               customerId: userInfo?.id,
@@ -73,7 +73,7 @@ const OrderHistory: React.FC = () => {
   const handleCancelOrder = async (order: Order) => {
     try {
       const response = await axios.post(
-        `http://157.66.27.65:8080/api/KoiOrder/cancel-order/${order.orderId}`
+        `${import.meta.env.VITE_API_URL}/KoiOrder/cancel-order/${order.orderId}`
       );
       if (response.data.success) {
         setOrders((prevOrders) =>
@@ -93,7 +93,7 @@ const OrderHistory: React.FC = () => {
   const handlePayment = async (orderId: number) => {
     try {
       const response = await axios.post(
-        `http://157.66.27.65:8080/api/VNPay/Payment`,
+        `${import.meta.env.VITE_API_URL}/VNPay/Payment`,
         null,
         { params: { orderId } }
       );

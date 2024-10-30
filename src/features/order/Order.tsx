@@ -23,7 +23,7 @@ const Order: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          'http://157.66.27.65:8080/api/KoiOrder/getEnumStatusKoiOrder'
+          `${import.meta.env.VITE_API_URL}/KoiOrder/getEnumStatusKoiOrder`
         );
         if (response.data.success) {
           setOrderStatuses(response.data.data);

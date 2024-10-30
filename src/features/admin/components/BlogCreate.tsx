@@ -35,7 +35,7 @@ const BlogUpdateAndCreate: React.FC<{ onClose: () => void }> = ({
     setError(null);
     try {
       const response = await axios.post(
-        'http://157.66.27.65:8080/api/CMSContent/add-content',
+        `${import.meta.env.VITE_API_URL}/CMSContent/add-content`,
         formData
       );
       if (response.data.success) {

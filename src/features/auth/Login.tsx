@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/Account/login`,
+        `${import.meta.env.VITE_API_URL}/Account/login`,
         { email, password },
         {
           headers: {

@@ -29,7 +29,7 @@ const Blog: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'http://157.66.27.65:8080/api/CMSContent/get-articles',
+        `${import.meta.env.VITE_API_URL}/CMSContent/get-articles`,
         {
           params: {
             sortBy: sortOptions[0]?.field,
