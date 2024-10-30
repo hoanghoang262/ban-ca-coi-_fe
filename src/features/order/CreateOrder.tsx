@@ -6,6 +6,8 @@ import { FaInfoCircle, FaArrowLeft } from 'react-icons/fa';
 import tutorialImage from '../../assets/koi-koi-about-us.webp';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateOrder: React.FC = () => {
   const orderStatuses = useRecoilValue(orderStatusesState);
@@ -35,6 +37,7 @@ const CreateOrder: React.FC = () => {
         setPricingOptions(response.data.data);
       } catch (error) {
         console.error('Error fetching pricing options:', error);
+        toast.error('Error fetching pricing options');
       }
     };
 
@@ -71,7 +74,7 @@ const CreateOrder: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!order.pickupLocation || !order.destination || !order.transportMethod) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
     try {
@@ -81,7 +84,7 @@ const CreateOrder: React.FC = () => {
       );
       if (response.data.success) {
         console.log('Order created:', response.data.data);
-        alert('Order created successfully');
+        toast.success('Order created successfully');
         setOrder({
           customerId: userInfo?.id || 0,
           pickupLocation: '',
@@ -96,7 +99,7 @@ const CreateOrder: React.FC = () => {
       }
     } catch (error) {
       console.error('Error creating order:', error);
-      alert('Failed to create order. Please try again.');
+      toast.error('Failed to create order. Please try again.');
     }
   };
 

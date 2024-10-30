@@ -5,7 +5,7 @@ import {
   Order,
   userInfoState,
 } from '../../shared/state/atom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -13,8 +13,11 @@ import {
   FaFilter,
   FaSortAmountDown,
   FaSortAmountUp,
+  FaInfoCircle,
+  FaTimes,
 } from 'react-icons/fa';
 import axios from 'axios';
+import Modal from 'react-modal';
 
 const OrderHistory: React.FC = () => {
   const orders = useRecoilValue(customerOrdersState);
@@ -28,7 +31,7 @@ const OrderHistory: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [pagination, setPagination] = useState({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 9,
     totalRecords: 0,
     totalPages: 0,
   });
@@ -169,27 +172,6 @@ const OrderHistory: React.FC = () => {
               List
             </button>
           </div>
-          <div className="mb-4 flex items-center">
-            <label htmlFor="pageSize" className="mr-2 text-gray-500">
-              Page Size:
-            </label>
-            <select
-              id="pageSize"
-              value={pagination.pageSize}
-              onChange={(e) =>
-                setPagination((prev) => ({
-                  ...prev,
-                  pageSize: parseInt(e.target.value, 10),
-                }))
-              }
-              className="border border-gray-300 rounded px-4 py-2"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
           {filteredOrders.length === 0 ? (
             <div className="text-center text-gray-500">
               <h2 className="text-2xl font-semibold mb-4">No orders found</h2>
@@ -206,7 +188,7 @@ const OrderHistory: React.FC = () => {
               {filteredOrders.map((order) => (
                 <motion.div
                   key={order.orderId}
-                  className={`bg-white p-6 rounded-lg shadow-md ${
+                  className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow ${
                     displayMode === 'grid'
                       ? 'flex flex-col justify-between'
                       : 'flex flex-col md:flex-row justify-between items-center'
@@ -263,17 +245,28 @@ const OrderHistory: React.FC = () => {
                       )}
                     </p>
                   </div>
-                  {order.status !== 'Delivered' &&
-                    order.status !== 'Canceled' && (
-                      <motion.button
-                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors mt-4 md:mt-0 md:ml-4"
-                        onClick={() => handleCancelOrder(order)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Cancel Order
-                      </motion.button>
-                    )}
+                  <div className="flex items-center mt-4 md:mt-0 md:ml-4 space-x-2">
+                    {order.status !== 'Delivered' &&
+                      order.status !== 'Canceled' && (
+                        <motion.button
+                          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all duration-200 transform hover:-translate-y-1 shadow-md hover:shadow-lg"
+                          onClick={() => handleCancelOrder(order)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Cancel Order
+                        </motion.button>
+                      )}
+                    <motion.button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-200 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center"
+                      onClick={() => setSelectedOrder(order)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaInfoCircle className="mr-2" />
+                      View Details
+                    </motion.button>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -312,6 +305,150 @@ const OrderHistory: React.FC = () => {
           </div>
         </>
       )}
+
+      <AnimatePresence>
+        {selectedOrder && (
+          <Modal
+            isOpen={!!selectedOrder}
+            onRequestClose={() => setSelectedOrder(null)}
+            contentLabel="Order Details"
+            className="fixed inset-0 flex items-center justify-center z-50"
+            overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 relative shadow-xl"
+            >
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes size={24} />
+              </button>
+
+              <h2 className="text-3xl font-bold mb-6 text-gray-800">
+                Order Details
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Order ID:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.orderId}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Customer ID:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.customerId}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Pickup Location:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.pickupLocation}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Destination:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.destination}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">Weight:</span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.weight} kg
+                    </span>
+                  </p>
+                </div>
+
+                <div>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Quantity:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.quantity}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Transport Method:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.transportMethod}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">Total:</span>
+                    <span className="ml-2 text-gray-600">
+                      ${selectedOrder.total?.toFixed(2)}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Additional Services:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.additionalServices || 'None'}
+                    </span>
+                  </p>
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">Status:</span>
+                    <span className="ml-2 text-gray-600">
+                      {selectedOrder.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 mt-6 pt-6">
+                <p className="mb-4">
+                  <span className="font-semibold text-gray-700">
+                    Placed Date:
+                  </span>
+                  <span className="ml-2 text-gray-600">
+                    {new Date(selectedOrder.placedDate).toLocaleString()}
+                  </span>
+                </p>
+                {selectedOrder.completedDate && (
+                  <p className="mb-4">
+                    <span className="font-semibold text-gray-700">
+                      Completed Date:
+                    </span>
+                    <span className="ml-2 text-gray-600">
+                      {new Date(selectedOrder.completedDate).toLocaleString()}
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-8 flex justify-end">
+                <motion.button
+                  onClick={() => setSelectedOrder(null)}
+                  className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Close
+                </motion.button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
