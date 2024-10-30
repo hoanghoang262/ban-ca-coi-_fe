@@ -13,7 +13,8 @@ import {
   FaNewspaper,
   FaUser,
   FaFileAlt,
-  FaTruck, // Import the shopping cart icon
+  FaTruck,
+  FaChartLine, // Import the shopping cart icon
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -54,6 +55,19 @@ const Navbar: React.FC = () => {
       text: 'About',
       color: 'text-purple-400',
     },
+    // { to: '/admin', icon: FaCog, text: 'Admin', color: 'text-red-400' },
+    // {
+    //   to: '/staff/sales',
+    //   icon: FaChartLine,
+    //   text: 'Sales',
+    //   color: 'text-blue-400',
+    // },
+    // {
+    //   to: '/staff/delivering',
+    //   icon: FaTruck,
+    //   text: 'Delivering',
+    //   color: 'text-green-400',
+    // },
   ];
 
   if (userInfo?.role === 'Manager') {

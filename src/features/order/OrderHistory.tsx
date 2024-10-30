@@ -90,6 +90,23 @@ const OrderHistory: React.FC = () => {
     }
   };
 
+  const handlePayment = async (orderId: number) => {
+    try {
+      const response = await axios.post(
+        `http://157.66.27.65:8080/api/VNPay/Payment`,
+        null,
+        { params: { orderId } }
+      );
+      if (response.data.paymentUrl) {
+        window.open(response.data.paymentUrl, '_blank');
+      } else {
+        console.error('Failed to retrieve payment URL');
+      }
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+    }
+  };
+
   const filteredOrders = orders
     .filter(
       (order) =>
@@ -128,6 +145,7 @@ const OrderHistory: React.FC = () => {
               className="border border-gray-300 rounded px-4 py-2"
             >
               <option value="">All Statuses</option>
+              <option value="WaitingForPayment">WaitingForPayment</option>
               <option value="Pending">Pending</option>
               <option value="HealthCheck">HealthCheck</option>
               <option value="HealthChecked">HealthChecked</option>
@@ -257,6 +275,16 @@ const OrderHistory: React.FC = () => {
                           Cancel Order
                         </motion.button>
                       )}
+                    {order.status === 'WaitingForPayment' && (
+                      <motion.button
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-all duration-200 transform hover:-translate-y-1 shadow-md hover:shadow-lg"
+                        onClick={() => handlePayment(order.orderId)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Pay Now
+                      </motion.button>
+                    )}
                     <motion.button
                       className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-200 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center"
                       onClick={() => setSelectedOrder(order)}

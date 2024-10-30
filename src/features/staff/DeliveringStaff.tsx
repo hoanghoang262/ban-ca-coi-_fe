@@ -185,7 +185,11 @@ const DeliveringStaff: React.FC = () => {
             <motion.div
               key={order.orderId}
               whileHover={{ scale: 1.03 }}
-              className="p-6 border rounded-lg shadow-lg bg-white"
+              className={`p-6 border rounded-lg shadow-lg ${
+                order.status === 'Delivered'
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-white'
+              }`}
             >
               <h2 className="text-xl font-semibold mb-3 text-gray-800">
                 Order #{order.orderId}
@@ -193,7 +197,13 @@ const DeliveringStaff: React.FC = () => {
               <div className="space-y-2 mb-4">
                 <p>
                   <span className="font-medium text-gray-600">Status:</span>{' '}
-                  <span className="text-blue-500">{order.status}</span>
+                  {order.status === 'Delivered' ? (
+                    <span className="text-green-500 flex items-center gap-1">
+                      <FaCheckCircle /> Delivered Successfully
+                    </span>
+                  ) : (
+                    <span className="text-blue-500">{order.status}</span>
+                  )}
                 </p>
                 <p>
                   <span className="font-medium text-gray-600">Customer:</span>{' '}
@@ -211,28 +221,37 @@ const DeliveringStaff: React.FC = () => {
                 </p>
               </div>
               <div className="flex justify-between items-center mt-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() =>
-                    handleStatusUpdate(order.orderId, order.status)
-                  }
-                  className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center transition-colors duration-300 hover:bg-blue-600"
-                >
-                  <FaArrowRight className="mr-2" />
-                  Next Status
-                </motion.button>
-                <div className="flex space-x-2">
+                {order.status !== 'Delivered' ? (
                   <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() =>
-                      handleStatusUpdate(order.orderId, 'Cancelled')
+                      handleStatusUpdate(order.orderId, order.status)
                     }
-                    className="text-red-500 hover:text-red-600"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center transition-colors duration-300 hover:bg-blue-600"
                   >
-                    <FaTimesCircle size={24} />
+                    <FaArrowRight className="mr-2" />
+                    Next Status
                   </motion.button>
+                ) : (
+                  <div className="flex items-center text-green-600">
+                    <FaCheckCircle className="mr-2" />
+                    Completed
+                  </div>
+                )}
+                <div className="flex space-x-2">
+                  {order.status !== 'Delivered' && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() =>
+                        handleStatusUpdate(order.orderId, 'Cancelled')
+                      }
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <FaTimesCircle size={24} />
+                    </motion.button>
+                  )}
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}

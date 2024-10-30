@@ -85,6 +85,17 @@ const CreateOrder: React.FC = () => {
       if (response.data.success) {
         console.log('Order created:', response.data.data);
         toast.success('Order created successfully');
+        const newOrder = response.data.data;
+        if (newOrder.status === 'WaitingForPayment') {
+          const paymentResponse = await axios.post(
+            `http://157.66.27.65:8080/api/VNPay/Payment`,
+            null,
+            { params: { orderId: newOrder.orderId } }
+          );
+          if (paymentResponse.data.paymentUrl) {
+            window.open(paymentResponse.data.paymentUrl, '_blank');
+          }
+        }
         setOrder({
           customerId: userInfo?.id || 0,
           pickupLocation: '',
@@ -279,7 +290,8 @@ const CreateOrder: React.FC = () => {
                   <option value="">Select a pricing method</option>
                   {pricingOptions.map((option) => (
                     <option key={option.priceId} value={option.priceId}>
-                      {option.transportMethod} - ${option.pricePerKg}/kg
+                      {option.transportMethod} -{' '}
+                      {option.pricePerKg.toLocaleString('vi-VN')}đ/kg
                     </option>
                   ))}
                 </motion.select>
@@ -316,7 +328,7 @@ const CreateOrder: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 1.0 }}
               >
-                ${(order.total * order.quantity).toFixed(2)}
+                {order.total.toLocaleString('vi-VN')}đ
               </motion.div>
             </div>
             <motion.button

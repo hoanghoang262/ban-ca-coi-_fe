@@ -24,24 +24,9 @@ const navItems: NavItem[] = [
     label: 'Pricing',
   },
   {
-    path: '/admin/orders',
-    icon: <FaShoppingCart className="mr-4 text-2xl" />,
-    label: 'Orders',
-  },
-  {
-    path: '/admin/customers',
-    icon: <FaUsers className="mr-4 text-2xl" />,
-    label: 'Customers',
-  },
-  {
     path: '/admin/blog',
     icon: <FaFileInvoice className="mr-4 text-2xl" />,
     label: 'Blog',
-  },
-  {
-    path: '/admin/shipping',
-    icon: <FaTruck className="mr-4 text-2xl" />,
-    label: 'Shipping',
   },
 ];
 
