@@ -24,6 +24,8 @@ import { accessTokenState, userInfoState } from './shared/state/atom';
 import BlogManager from './features/admin/BlogManager';
 import SalesStaff from './features/staff/SalesStaff';
 import DeliveringStaff from './features/staff/DeliveringStaff';
+import PaymentSuccess from './features/payment/payment-success';
+import PaymentFault from './features/payment/payment-fault';
 
 function App() {
   const setUserInfo = useSetRecoilState(userInfoState);
@@ -58,6 +60,8 @@ function App() {
         theme="light"
       />
       <Routes>
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/fault" element={<PaymentFault />} />
         <Route path="/" element={<CommonTemplate />}>
           <Route index element={<Home />} />
           <Route path="about" element={<AboutUs />} />
